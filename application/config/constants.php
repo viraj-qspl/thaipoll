@@ -102,6 +102,8 @@ define('CREATE','create');
 //QUESTION
 define('SCALE_LABEL_1','Strongly Agree');
 define('SCALE_LABEL_2','Strongly DisAgree');
+define('MIN_VALUE','Minimum Value');
+define('MAX_VALUE','Maximum Value');
 
 
 /*

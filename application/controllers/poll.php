@@ -322,37 +322,38 @@ class Poll extends CI_Controller {
 
 	
 	
-	 public function createPoll($action='')
+	 public function createPoll($action='',$id='')
 	 {
 	 
-		 switch($action) {							// Action variable defines fow of control of the Create Poll Method
-				
-			case 'TEMPLATE':						// Create poll from template		
+		 switch($action) {							// Action variable defines flow of control of the Create Poll Method
+	
 
+	
+			case 'TEMPLATE':						// Create poll from template		
 				break;	
 
 				
 			case 'SCRATCH' : 						// Create Poll from scratch
 				$this->addPollForm();
 				break;
-				
+	
 
-			case 'CREATE' :						// Create a new question				
-				$action = 'create';				
-				$viewArr['viewArr'] = array('action'=>$action);
-				$viewArr['viewPage'] = 'create_poll';
-				$this->load->view('layout',$viewArr);
-				break;
-				
+			case 'CREATE' :						// Choose Add question or add dependency		
+			$action = 'create';				
+			$viewArr['viewArr'] = array('action'=>$action,'poll_id'=>$id);
+			$viewArr['viewPage'] = 'create_poll';
+			$this->load->view('layout',$viewArr);
+			break;	
+
+
+
 			case 'ADD_QUESTION' :						// Create a new question				
 				$action = 'add_question';				
-				$viewArr['viewArr'] = array('action'=>$action);
+				$viewArr['viewArr'] = array('action'=>$action,'poll_id'=>$id);
 				$viewArr['viewPage'] = 'create_poll';
 				$this->load->view('layout',$viewArr);
 				break;				
-				
-				
-			
+
 			default :								// Send user to select a Poll Type i.e scratch or template
 		 		$action = 'select_type';				
 				$viewArr['viewArr'] = array('action'=>$action);
@@ -408,13 +409,7 @@ class Poll extends CI_Controller {
 		// Pass data to view/template
 		$viewArr['listDataObj']			= $listDataObj;
 		
-/**		// Get objects for Country-State-City-Area values
-		$objArr = $this->common_method->getCountryStateCityAreaObjects($recordObj);
-		$viewArr['countryObjArr'] 	= $objArr['countryObjArr'];
-		$viewArr['stateObjArr']		= $objArr['stateObjArr'];
-		$viewArr['cityObjArr']		= $objArr['cityObjArr'];
-		$viewArr['areaObjArr']		= $objArr['areaObjArr'];			**/
-		
+
  		// Display output page	
 		$action = 'poll_details';				
 		$viewArr['viewArr'] = array('action'=>$action,'pollCategories'=>$this->poll_model->getPollCategories(),'recordObj'=>$recordObj,'oprType'=>$dataArr['oprType']);
@@ -473,7 +468,7 @@ class Poll extends CI_Controller {
 			$dataArr['oprMessage'] 	= $this->common_method->getMessage($dataArr['oprType'], $queryFlag); // Operation message, eg: Add Success or Edit Success etc
 			
 			// Show listing page, send the $dataArr for further processing
-			redirect('/poll/createPoll/CREATE');
+			redirect('/poll/createPoll/CREATE/'.$this->session->userdata('create_poll_id'));
 		}				
 			
 	}
@@ -550,31 +545,66 @@ class Poll extends CI_Controller {
 	public function addQuestion()
 	{
 		$questionType = $this->input->post('type');
+		$question = $this->input->post('question');
+		$ans_reqd = $this->input->post('required');
+		$scale_sub_ques = array();
+		$id = $this->input->post('poll_id');
 		
 		switch($questionType) {
 		
+
+		
 			case 'SINGLE':		
-			$options = $this->input->post('sng');
-			$allow_text = $this->input->post('sng_allow_text');			
-			break;
+				$options = $this->input->post('sng');
+				$allow_text = $this->input->post('sng_allow_text');
+				$options_label = array();
+				$txt='NA';	
+				break;
 			
 			case 'MULTIPLE':
-			$options = $this->input->post('mlt');
-			$allow_text = $this->input->post('mlt_allow_text');				
-			break;
+				$options = $this->input->post('mlt');
+				$allow_text = $this->input->post('mlt_allow_text');
+				$options_label = array();
+				$txt='NA';	
+				break;
 			
 			case 'SCALE':
-				$scl_ques_1 = array(SCALE_LABEL_1=>$this->input->post('sc_ques_1'));
-				$scl_ques_2 = array(SCALE_LABEL_2=>$this->input->post('sc_ques_2'));
-			break;
+				$options = $this->input->post('scl');
+				$options_label = $this->input->post('scl_label');
+				$allow_text = 'NA';
+				if($this->input->post('scl_sub_ques_count')!='' && $this->input->post('scl_sub_ques_count')!=0)
+					$scale_sub_ques = $this->input->post('scl_sub_ques');
+				else 
+					$scale_sub_ques = array();
+				$txt = 'NA';		
+				break;
 			
-			case 'NUMBER':
+			case 'TEXT':
+				$txt_type = $this->input->post('txt_type');
+				$allow_text = 'NA';
+				$options = array();	
+				
+			switch($txt_type) {
+				case 'TEXT':
+					$txt='Y';
+					break;					
+				case 'NUMBER':
+					$txt = 'N';
+					$min_value = $this->input->post('min_value');
+					$max_value = $this->input->post('max_value');
+					$min_label = MIN_VALUE;
+					$max_label = MAX_VALUE;
+					$options = array($min_value,$max_value);
+					$options_label = array($min_label,$max_label);
+					break;				
+				}
 			break;
-		
-		
-		
-		
+
 		}
+		
+		$status = 'PUBLISHED';
+		
+		$this->poll_model->addQuestion($id,$questionType,$question,$allow_text,$status,$ans_reqd,$options,$allow_text,$options_label,$scale_sub_ques,$txt);
 		
 	
 	

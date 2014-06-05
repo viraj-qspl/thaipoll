@@ -11,3 +11,7 @@ $config['tbl_user'] 				= "cb_user";
 $config['tbl_poll'] 				= "poll";
 $config['tbl_giftcard'] 			= "giftcard";
 $config['tbl_pollCategory'] 		= "pollCategory";
+$config['tbl_pollQuestion'] 		= "pollQuestion";
+$config['tbl_pollAnswer'] 			= "pollAnswer";
+$config['tbl_scaleQuestion'] 		= "saleQuestion";
+

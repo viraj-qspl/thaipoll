@@ -51,9 +51,9 @@
 		}
 		elseif($action == CREATE) {
 			
-			echo "<a href='".$this->config->item('base_url')."/poll/createPoll/ADD_QUESTION'>Add Questions</a>";	
+			echo "<a href='".$this->config->item('base_url')."/poll/createPoll/ADD_QUESTION/".$poll_id."'>Add Questions</a>";	
 				// existing question to be displayed here
-			echo "<a href='".$this->config->item('base_url')."/poll/createPoll/ADD_SKIP_LOGIC'>Add Skip flow logic</a>";	
+			echo "<a href='".$this->config->item('base_url')."/poll/createPoll/ADD_SKIP_LOGIC/".$poll_id."'>Add Skip flow logic</a>";	
 				
 				
 			
@@ -65,7 +65,7 @@
 			echo "<label>Question Name:</label>".form_input(array('name'=>'question','id'=>'question'));
 			echo "<label>Required:</label>";
 			echo "Yes: ".form_radio(array('name'=>'required','value'=>'Y'));
-			echo "No: ".form_radio(array('name'=>'required','value'=>'Y'));
+			echo "No: ".form_radio(array('name'=>'required','value'=>'N'));
 
 			?>
 
@@ -102,14 +102,11 @@
 				
 				<div id="scale_box" class="question_type_box" style="display:none;">		<!-- scale options box -->
 				<?php
-					echo form_input(array('name'=>'scl[]','id'=>'scl_option_1','value'=>'1'))."&nbsp;&nbsp;&nbsp;".'Strongly Agree'."<br/>";
-					echo form_input(array('name'=>'scl[]','id'=>'scl_option_2','value'=>'5'))."&nbsp;&nbsp;&nbsp;".'Strongly DisAgree'."<br/>";
+					echo form_input(array('name'=>'scl[]','id'=>'scl_option_1','value'=>'1'))."&nbsp;&nbsp;&nbsp;".form_input(array('name'=>'scl_label[]','id'=>'scl_label_1','value'=>SCALE_LABEL_1))."<br/>";
+					echo form_input(array('name'=>'scl[]','id'=>'scl_option_2','value'=>'5'))."&nbsp;&nbsp;&nbsp;".form_input(array('name'=>'scl_label[]','id'=>'scl_label_2','value'=>SCALE_LABEL_2))."<br/>";
 					echo "Sub Question title";
-					echo form_input(array('name'=>'scl_ques_1','value'=>'Yes'));
-					echo form_input(array('name'=>'scl_ques_2','value'=>'No'));
-					echo form_hidden('scl_ques_count',2);
-					echo "<div id='scl_add_ques'>Add Sub Question</div>";
-					echo form_hidden('scl_sub_ques_count',0);		
+					echo form_hidden('scl_sub_ques_count',0); //scl_sub_ques stored question
+					echo "<div id='scl_add_ques'>Add Sub Question</div>";	
 				?>
 				
 				
@@ -132,11 +129,13 @@
 
 			<?php
 				echo form_hidden(array('type'=>''));
+				echo form_hidden(array('poll_id'=>$poll_id));
 				
 				echo form_submit('Submit','Submit');
 				
 				
 			echo form_close(); // Some minor changes
+			
 		}
 	?>
 <div style="clear:both;"></div>	
@@ -161,12 +160,12 @@
 		
 		$('#text_text').click(function(){
 			$('#text_number_box').css('display','none');
-			$('input[name="txt_type"]').val('text');
+			$('input[name="txt_type"]').val('TEXT');
 		});
 
 		$('#text_number').click(function(){
 			$('#text_number_box').css('display','block');
-			$('input[name="txt_type"]').val('number');
+			$('input[name="txt_type"]').val('NUMBER');
 		})		
 	
 	})

@@ -333,11 +333,105 @@ class Poll_model extends CI_Model
 			log_message("info", "Failed to perform Add/Edit operation on:" . $argRecordObj->getTitle());			
 		}
 		else
-			$this->session->set_userdata('poll_id',$this->db->insert_id());
+			$this->session->set_userdata('create_poll_id',$this->db->insert_id());
 				
 		return $queryResult;
 	
 	}		
+	
+	
+	public function addQuestion($pollId,$questionType,$question,$allow_text,$status='DRAFT',$ans_reqd,$options,$allow_text,$options_label,$scale_sub_ques,$txt) {
+	
+		$data = array(
+			'poll_id'=>$pollId,
+			'question'=>$question,
+			'allow_text'=>$allow_text,
+			'required'=>$ans_reqd,
+			'type'=>$questionType,
+			'status'=>$status,
+			'filter_ques'=>'N'
+		);
+		
+		$this->db->insert($this->config->item('tbl_pollQuestion','dbtables'),$data);
+		
+		$questionId = $this->db->insert_id();
+		
+		switch($questionType) {
+			case 'SINGLE':
+			foreach($options as $key=>$value) {
+				$data = array(
+					'pollQuestion_id'=> $questionId,
+					'answer'=>$value,
+					'label'=>'',
+					'text'=>$txt
+				);
+				$this->db->insert($this->config->item('tbl_pollAnswer','dbtables'),$data);	
+			}
+			
+			break;
+			
+			case 'MULTIPLE':
+			foreach($options as $key=>$value) {
+				$data = array(
+					'pollQuestion_id'=> $questionId,
+					'answer'=>$value,
+					'label'=>'',
+					'text'=>$txt
+				);	
+				$this->db->insert($this->config->item('tbl_pollAnswer','dbtables'),$data);
+			}
+						
+			break;
+			
+			case 'SCALE':
+				foreach($options as $key=>$value)
+				{
+					$data=array(
+					'pollQuestion_id'=> $questionId,
+					'answer'=>$value,
+					'label'=>$options_label[$key],
+					'text'=>$txt			
+					);
+					$this->db->insert($this->config->item('tbl_pollAnswer','dbtables'),$data);
+				}
+				
+				
+				foreach($scale_sub_ques as $key=>$value)
+				{
+					$data = array(
+						'pollQuestion_id'=>$questionId,
+						'scale_question'=>$value
+					);
+				$this->db->insert($this->config->item('tbl_scaleQuestion','dbtbales'),$data);
+				}
+			
+			break;
+			
+			case 'TEXT':
+			if($txt=='N') {
+				foreach($options as $key=>$value) {
+					$data = array(
+						'pollQuestion_id'=>$question_id,
+						'answer'=>$value,
+						'label'=>$options_label[$key],
+						'text'=>$txt
+					);
+					$this->db->insert($this->config->item('tbl_pollAnswer','dbtbales'),$data);			
+				}		
+			}
+			elseif($txt=='Y')
+			{
+				$data = array (
+					'polQuestion_id'=>$question_id,
+					'answer'=>'',
+					'label'=>'',
+					'text'=>$txt
+				);
+				$this->db->insert($this->config->item('tbl_pollAnswer','dbtables'),$data);
+			}
+			break;
+		}
+	}
 	
 	
 	
