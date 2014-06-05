@@ -136,7 +136,7 @@
 				echo form_submit('Submit','Submit');
 				
 				
-			echo form_close();
+			echo form_close(); // Some minor changes
 		}
 	?>
 <div style="clear:both;"></div>	
